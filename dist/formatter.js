@@ -39,8 +39,7 @@ function formatWeekMarkdown(entries) {
     const lines = [];
     const firstDate = new Date(sortedDates[0]);
     const lastDate = new Date(sortedDates[sortedDates.length - 1]);
-    const dateOpts = { month: 'long', day: 'numeric' };
-    const title = `# Devlog: ${firstDate.toLocaleDateString('en-US', dateOpts)} – ${lastDate.toLocaleDateString('en-US', dateOpts)}, ${lastDate.getFullYear()}`;
+    const title = `# Devlog: ${firstDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} – ${lastDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
     lines.push(title);
     lines.push('');
     for (const date of sortedDates) {
@@ -58,5 +57,5 @@ function formatWeekMarkdown(entries) {
     return lines.join('\n');
 }
 function formatJSON(entries) {
-    return JSON.stringify(entries);
+    return JSON.stringify(entries) + '\n';
 }

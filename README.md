@@ -21,7 +21,15 @@ Requires Node.js 18+.
 
 ## Commands
 
-### `devlog add <message>`
+| Command | Description |
+|---------|-------------|
+| `add <message>` | Log an entry with auto-detected git repo tag |
+| `today` | Show today's entries (newest first) |
+| `yesterday` | Show yesterday's entries (newest first) |
+| `list` | Show recent entries (newest first, default 20) |
+| `week` | Generate a weekly markdown summary |
+
+### `devlog add <message> [--tag <name>]`
 
 Creates a journal entry with the current timestamp and auto-detected git repository name.
 
@@ -32,9 +40,13 @@ devlog add "WIP: rate limiting"
 # → 2026-06-29T15-45-12-456
 ```
 
-Prints the entry ID on success. Tags are derived from the git remote URL or folder name; falls back to `uncategorized`.
+Prints the entry ID on success. Tags are derived from the git remote URL or folder name; falls back to `uncategorized`. Use `--tag` to override:
 
-### `devlog today`
+```bash
+devlog add "Pushed to production" --tag deploy
+```
+
+### `devlog today [--json]`
 
 Lists entries created today, newest first.
 
@@ -47,6 +59,15 @@ devlog today
 ```bash
 devlog today --json
 # [{"id":"2026-06-29T15-45-12-456","timestamp":"2026-06-29T15:45:12.456Z","message":"WIP: rate limiting","tag":"devlog"},...]
+```
+
+### `devlog yesterday [--json]`
+
+Lists entries created yesterday. Same format as `today`.
+
+```bash
+devlog yesterday
+# 09:12  [api] Added rate limiting
 ```
 
 ### `devlog list [--limit N] [--json]`
@@ -106,6 +127,30 @@ Or pair with a cron / launchd job to ask `devlog today` every evening:
 ```bash
 # crontab example: show today's entries at 5pm
 0 17 * * 1-5 devlog today 2>/dev/null || true
+```
+
+## GitHub Actions Example
+
+Use devlog in a daily CI workflow to log activity across your repos:
+
+```yaml
+# .github/workflows/devlog.yml
+name: Daily Devlog
+on:
+  schedule:
+    - cron: '0 22 * * 1-5'  # weekdays at 5pm ET
+  workflow_dispatch:         # manual trigger
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install -g @helix_dev/devlog
+      - run: devlog add "Automated daily log from CI"
 ```
 
 ## Programmatic API

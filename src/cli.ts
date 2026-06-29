@@ -6,7 +6,7 @@ import { getEntries, prependEntry } from './storage';
 import { formatTodayList, formatList, formatWeekMarkdown, formatJSON } from './formatter';
 import { DevlogEntry } from './types';
 
-const USAGE = 'Usage: devlog <command> [options]\n\nCommands:\n  add <message>  Log an entry\n  today          Show today\'s entries\n  list           Show recent entries\n  week           Generate weekly markdown summary';
+const USAGE = 'Usage: devlog <command> [options]\n\nCommands:\n  add <message>  Log an entry\n  today          Show today\'s entries\n  yesterday      Show yesterday\'s entries\n  list           Show recent entries\n  week           Generate weekly markdown summary';
 
 function generateId(date?: Date): string {
   return (date ?? new Date()).toISOString().replace(/:/g, '-').replace(/\.(\d{3})Z$/, '-$1');
@@ -19,6 +19,7 @@ export function main(args?: string[]): string {
       options: {
         json: { type: 'boolean', short: 'j', default: false },
         limit: { type: 'string', short: 'l', default: '20' },
+        tag: { type: 'string', short: 't' },
       },
       allowPositionals: true,
       strict: false,
@@ -36,7 +37,7 @@ export function main(args?: string[]): string {
         if (!message) {
           return 'Error: message is required\ndevlog add <message>';
         }
-        const tag = detectRepoTag();
+        const tag = (values.tag as string | undefined) ?? detectRepoTag();
         const now = new Date();
         const id = generateId(now);
         const entry: DevlogEntry = {
@@ -57,6 +58,19 @@ export function main(args?: string[]): string {
           return formatJSON(todayEntries);
         }
         return formatTodayList(todayEntries);
+      }
+
+      case 'yesterday': {
+        const allEntries = getEntries();
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+        const yesterdayEntries = allEntries.filter((e) => e.timestamp.slice(0, 10) === yesterdayStr);
+        if (values.json) {
+          return formatJSON(yesterdayEntries);
+        }
+        return formatTodayList(yesterdayEntries);
       }
 
       case 'list': {

@@ -70,6 +70,24 @@ describe('cli', () => {
     expect(output).toContain('Unknown command');
   });
 
+  it('adds an entry with --tag override', () => {
+    const result = main(['add', 'Tagged entry', '--tag', 'my-project']);
+    const entries = getEntries();
+    expect(entries).toHaveLength(1);
+    expect(entries[0].tag).toBe('my-project');
+  });
+
+  it('shows yesterday entries when none exist', () => {
+    main(['add', 'Today entry']);
+    const output = main(['yesterday']);
+    expect(output).toBe('');
+  });
+
+  it('yesterday --json returns JSON output', () => {
+    const output = main(['yesterday', '--json']);
+    expect(() => JSON.parse(output)).not.toThrow();
+  });
+
   it('handles corrupt storage file gracefully', () => {
     const devlogDir = join(tmpDir, '.devlog');
     const filePath = join(devlogDir, 'entries.json');
