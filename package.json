@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["journal", "devlog", "cli"],
+  "keywords": ["cli", "devlog", "journal", "productivity", "developer-tools", "terminal", "nodejs", "typescript"],
+  "homepage": "https://github.com/helix98/devlog",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
