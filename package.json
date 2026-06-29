@@ -1,6 +1,6 @@
 {
   "name": "@helix_dev/devlog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A structured daily coding journal CLI",
   "bin": {
     "devlog": "bin/devlog.js"
