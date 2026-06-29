@@ -37,8 +37,7 @@ export function formatWeekMarkdown(entries: DevlogEntry[]): string {
   const lines: string[] = [];
   const firstDate = new Date(sortedDates[0]);
   const lastDate = new Date(sortedDates[sortedDates.length - 1]);
-  const dateOpts: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
-  const title = `# Devlog: ${firstDate.toLocaleDateString('en-US', dateOpts)} – ${lastDate.toLocaleDateString('en-US', dateOpts)}, ${lastDate.getFullYear()}`;
+  const title = `# Devlog: ${firstDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} – ${lastDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
   lines.push(title);
   lines.push('');
 
@@ -59,5 +58,5 @@ export function formatWeekMarkdown(entries: DevlogEntry[]): string {
 }
 
 export function formatJSON(entries: DevlogEntry[]): string {
-  return JSON.stringify(entries);
+  return JSON.stringify(entries) + '\n';
 }

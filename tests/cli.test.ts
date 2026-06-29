@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { main } from '../src/cli';
@@ -43,6 +43,13 @@ describe('cli', () => {
     expect(output).toContain('"message":"Test entry"');
   });
 
+  it('today --json returns JSON output', () => {
+    main(['add', 'JSON entry']);
+    const output = main(['today', '--json']);
+    expect(output).toContain('"message":"JSON entry"');
+    expect(() => JSON.parse(output)).not.toThrow();
+  });
+
   it('list respects --limit', () => {
     main(['add', 'First']);
     main(['add', 'Second']);
@@ -61,5 +68,14 @@ describe('cli', () => {
   it('shows error for unknown command', () => {
     const output = main(['unknown']);
     expect(output).toContain('Unknown command');
+  });
+
+  it('handles corrupt storage file gracefully', () => {
+    const devlogDir = join(tmpDir, '.devlog');
+    const filePath = join(devlogDir, 'entries.json');
+    mkdirSync(devlogDir, { recursive: true });
+    writeFileSync(filePath, '{corrupt', 'utf-8');
+    const output = main(['list']);
+    expect(output).toMatch(/^Error:/);
   });
 });

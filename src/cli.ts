@@ -6,8 +6,10 @@ import { getEntries, prependEntry } from './storage';
 import { formatTodayList, formatList, formatWeekMarkdown, formatJSON } from './formatter';
 import { DevlogEntry } from './types';
 
-function generateId(): string {
-  return new Date().toISOString().replace(/:/g, '-').replace(/\.(\d{3})Z$/, '-$1');
+const USAGE = 'Usage: devlog <command> [options]\n\nCommands:\n  add <message>  Log an entry\n  today          Show today\'s entries\n  list           Show recent entries\n  week           Generate weekly markdown summary';
+
+function generateId(date?: Date): string {
+  return (date ?? new Date()).toISOString().replace(/:/g, '-').replace(/\.(\d{3})Z$/, '-$1');
 }
 
 export function main(args?: string[]): string {
@@ -25,7 +27,7 @@ export function main(args?: string[]): string {
     const command = positionals[0];
 
     if (!command) {
-      return 'Usage: devlog <command> [options]\n\nCommands:\n  add <message>  Log an entry\n  today          Show today\'s entries\n  list           Show recent entries\n  week           Generate weekly markdown summary';
+      return USAGE;
     }
 
     switch (command) {
@@ -35,10 +37,11 @@ export function main(args?: string[]): string {
           return 'Error: message is required\ndevlog add <message>';
         }
         const tag = detectRepoTag();
-        const id = generateId();
+        const now = new Date();
+        const id = generateId(now);
         const entry: DevlogEntry = {
           id,
-          timestamp: new Date().toISOString(),
+          timestamp: now.toISOString(),
           message,
           tag,
         };
@@ -48,7 +51,7 @@ export function main(args?: string[]): string {
 
       case 'today': {
         const allEntries = getEntries();
-        const today = new Date().toISOString().slice(0, 10);
+        const today = new Date().toLocaleDateString('en-CA');
         const todayEntries = allEntries.filter((e) => e.timestamp.slice(0, 10) === today);
         if (values.json) {
           return formatJSON(todayEntries);
@@ -58,7 +61,7 @@ export function main(args?: string[]): string {
 
       case 'list': {
         const allEntries = getEntries();
-        const limit = parseInt(values.limit as string, 10) || 20;
+        const limit = values.limit !== undefined ? Math.max(0, parseInt(values.limit as string, 10)) : 20;
         const limited = allEntries.slice(0, limit);
         if (values.json) {
           return formatJSON(limited);
@@ -69,17 +72,16 @@ export function main(args?: string[]): string {
       case 'week': {
         const allEntries = getEntries();
         const now = new Date();
-        const sevenDaysAgo = new Date(now);
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-        sevenDaysAgo.setHours(0, 0, 0, 0);
-        const cutoff = sevenDaysAgo.toISOString();
+        const localDateStr = now.toLocaleDateString('en-CA');
+        const localDate = new Date(localDateStr + 'T00:00:00');
+        localDate.setDate(localDate.getDate() - 6);
+        const cutoff = localDate.toISOString();
         const weekEntries = allEntries.filter((e) => e.timestamp >= cutoff);
-        weekEntries.reverse();
         return formatWeekMarkdown(weekEntries);
       }
 
       default:
-        return `Unknown command: ${command}\n\nCommands:\n  add <message>  Log an entry\n  today          Show today's entries\n  list           Show recent entries\n  week           Generate weekly markdown summary`;
+        return `Unknown command: ${command}\n\n${USAGE}`;
     }
   } catch (err) {
     const path = join(homedir(), '.devlog', 'entries.json');
@@ -87,8 +89,16 @@ export function main(args?: string[]): string {
   }
 }
 
+export function run(args?: string[]): void {
+  const output = main(args);
+  if (output.startsWith('Error:') || output.startsWith('Unknown command:')) {
+    console.error(output);
+    process.exit(1);
+  }
+  if (output) console.log(output);
+}
+
 // Auto-run when executed directly (not during tests)
 if (!process.env.VITEST) {
-  const output = main();
-  if (output) console.log(output);
+  run();
 }

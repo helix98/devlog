@@ -77,11 +77,11 @@ describe('formatter', () => {
     it('returns compact JSON array', () => {
       const entries = [makeEntry('2026-06-29T14:30:00.000Z', 'Entry', 'devlog')];
       const result = formatJSON(entries);
-      expect(result).toBe(JSON.stringify(entries));
+      expect(result).toBe(JSON.stringify(entries) + '\n');
     });
 
     it('returns "[]" for empty array', () => {
-      expect(formatJSON([])).toBe('[]');
+      expect(formatJSON([])).toBe('[]\n');
     });
   });
 });
