@@ -1,6 +1,6 @@
 {
   "name": "@helix_dev/devlog",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A structured daily coding journal CLI",
   "bin": {
     "devlog": "bin/devlog.js"
@@ -10,7 +10,16 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["cli", "devlog", "journal", "productivity", "developer-tools", "terminal", "nodejs", "typescript"],
+  "keywords": [
+    "cli",
+    "devlog",
+    "journal",
+    "productivity",
+    "developer-tools",
+    "terminal",
+    "nodejs",
+    "typescript"
+  ],
   "homepage": "https://github.com/helix98/devlog",
   "license": "MIT",
   "engines": {
