@@ -1,7 +1,7 @@
 # devlog
 
 [![npm version](https://img.shields.io/npm/v/@helix_dev/devlog)](https://www.npmjs.com/package/@helix_dev/devlog)
-[![MIT license](https://img.shields.io/npm/l/@helix_dev/devlog)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A zero-dependency CLI for maintaining a structured daily coding journal from the terminal.
 
